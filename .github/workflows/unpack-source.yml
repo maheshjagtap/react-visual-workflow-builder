@@ -16,16 +16,24 @@ jobs:
         with:
           ref: main
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract source files into repository
+      - name: Inspect and extract source archive
         run: |
-          if [ -f project-source.zip ]; then
+          set -e
+          file project-source.zip
+          if tar -tzf project-source.zip >/dev/null 2>&1; then
+            tar -xzf project-source.zip -C .
+          elif unzip -t project-source.zip >/dev/null 2>&1; then
             unzip -o project-source.zip -d .
-            rm project-source.zip
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add -A
-            if ! git diff --cached --quiet; then
-              git commit -m "chore: expand project source into repository"
-              git push origin main
-            fi
+          else
+            echo "Unsupported or invalid source archive"
+            exit 1
+          fi
+          rm project-source.zip
+          rm .github/workflows/unpack-source.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: expand project source into repository"
+            git push origin main
           fi
