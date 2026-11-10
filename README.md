@@ -16,4 +16,4 @@ npm test
 npm run build
 ```
 
-See the source for implementation details and the full feature set.
+The complete source code is included in `project-source.zip`. Extract it, install dependencies, and run the commands above.
